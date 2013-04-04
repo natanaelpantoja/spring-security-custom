@@ -1,0 +1,22 @@
+_Store
+ target
+ *.class
+ bin
+ .DS_Store
+ target
+ *.class
+ src/main/webapp/WEB-INF/classes
+ .history
+ .classpath
+ .project
+ .settings
+ target/*
+ .DS_Store
+ .DS_Store?
+ ._*
+ .Spotlight-V100
+ .Trashes
+ Icon?
+ ehthumbs.db
+ Thumbs.db
+.jar

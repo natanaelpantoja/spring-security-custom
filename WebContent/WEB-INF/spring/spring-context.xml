@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:security="http://www.springframework.org/schema/security"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:int="http://www.springframework.org/schema/integration"
+    xmlns="http://www.springframework.org/schema/beans"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/mvc 
+						http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+						http://www.springframework.org/schema/tx 
+						http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+						http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+						http://www.springframework.org/schema/context 
+						http://www.springframework.org/schema/context/spring-context-3.0.xsd
+				        http://www.springframework.org/schema/security
+				        http://www.springframework.org/schema/security/spring-security-3.0.xsd
+				        http://www.springframework.org/schema/integration
+				        http://www.springframework.org/schema/integration/spring-integration-1.0.xsd
+				        http://www.springframework.org/schema/aop 
+				        http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+   
+	<security:http auto-config="true" access-denied-page="/default/access-denied"  use-expressions="true">
+	  <security:form-login always-use-default-target="true" login-page="/login-form"  login-processing-url="/login"/>
+	  
+	  <security:logout logout-success-url="/login-form" logout-url="/logout"/>
+	  
+	  <security:custom-filter ref="requestHeaderFilter" before="FORM_LOGIN_FILTER"/>
+	  
+	  <security:intercept-url pattern="/produtos/**" access="isAuthenticated()" />
+	  
+	  <security:intercept-url pattern="/login-form/**" access="permitAll"/>
+	  
+	  <security:intercept-url pattern="/*" access="isAuthenticated()" />
+	  
+	</security:http>
+	
+	<bean class="br.com.caelum.authentication.CustomSuccessHandler" id="customSuccessHandler"/>
+	
+	<bean class="br.com.caelum.authentication.CustomAbstractAuthenticationProcessingFilter" id="requestHeaderFilter">
+	    <property name="authenticationManager" ref="authenticationManager"/>
+	    <property name="filterProcessesUrl" value="/login" />
+	</bean>
+	
+	<bean class="br.com.caelum.authentication.CustomAuthenticationProvider" id="customAuthenticationProvider"/>
+		    
+	
+	<security:authentication-manager alias="authenticationManager">
+	   <security:authentication-provider user-service-ref="usuarioHibernateDAO" ref="customAuthenticationProvider"/>
+	 </security:authentication-manager>	
+	
+    <context:component-scan base-package="br.com.caelum.estoque" />
+    
+    <context:component-scan base-package="br.com.caelum.estoque" use-default-filters="false">
+    	<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
+
+    <mvc:annotation-driven />
+    
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver" >
+        <property name="prefix" value="/WEB-INF/views/" />
+        <property name="suffix" value=".jsp" />
+    </bean>
+
+    <bean
+        id="localeResolver"
+        class="org.springframework.web.servlet.i18n.CookieLocaleResolver" >
+
+        <property
+            name="defaultLocale"
+            value="pt" />
+    </bean>
+
+    <bean
+        id="messageSource"
+        class="org.springframework.context.support.ReloadableResourceBundleMessageSource" >
+
+        <property
+            name="basename"
+            value="/WEB-INF/i18n/messages" />
+
+        <property
+            name="defaultEncoding"
+            value="UTF-8" />
+    </bean>
+  
+    <bean id="sessionFactory" 
+		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean" 
+		destroy-method="destroy" primary="true">
+
+     	<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.connection.url">jdbc:mysql://localhost/fj27</prop>
+				<prop key="hibernate.connection.driver_class">com.mysql.jdbc.Driver</prop>
+				<prop key="hibernate.connection.username">root</prop>
+				<prop key="hibernate.connection.password"></prop>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.format_sql">true</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+			</props>
+		</property>
+		<property name="annotatedClasses">
+			<list>
+				<value>br.com.caelum.estoque.model.Produto</value>
+				<value>br.com.caelum.estoque.model.Movimentacao</value>
+				<value>br.com.caelum.estoque.model.Grupo</value>
+				<value>br.com.caelum.estoque.model.Usuario</value>
+			</list>
+		</property>
+	</bean> 
+	<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+    	<property name="sessionFactory" ref="sessionFactory" />
+    </bean>
+    
+    <tx:annotation-driven />
+
+    <bean
+      id="produtoHibernateDAO"
+      class="br.com.caelum.estoque.dao.ProdutoHibernateDAO" />
+	
+	
+	    
+</beans>
