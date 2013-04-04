@@ -3,9 +3,8 @@ _Store
  *.class
  bin
  .DS_Store
- target
  *.class
- src/main/webapp/WEB-INF/classes
+ classes
  .history
  .classpath
  .project
